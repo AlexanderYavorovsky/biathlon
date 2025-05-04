@@ -14,17 +14,17 @@ type Config struct {
 	StartDelta  string `json:"startDelta"`
 }
 
-func parseConfig(path string) Config {
+func parseConfig(path string) (Config, error) {
 	f, err := os.ReadFile(path)
 	if err != nil {
-		panic(err)
+		return Config{}, err
 	}
 
 	cfg := Config{}
 	err = json.Unmarshal(f, &cfg)
 	if err != nil {
-		panic(err)
+		return Config{}, err
 	}
 
-	return cfg
+	return cfg, nil
 }
