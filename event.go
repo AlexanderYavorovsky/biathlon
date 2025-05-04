@@ -28,8 +28,6 @@ const (
 	EventFinished
 )
 
-const timeLayout = "15:04:05.000"
-
 type Event struct {
 	ID           int
 	CompetitorID int
@@ -51,7 +49,7 @@ func (e Event) String() string {
 	case EventOnRange:
 		return fmt.Sprintf("[%s] The competitor(%d) is on the firing range(%s)", eventTime, e.CompetitorID, e.ExtraParams[0])
 	case EventHit:
-		return fmt.Sprintf("[%s] The target(%d) has been hit by competitor(%s)", eventTime, e.CompetitorID, e.ExtraParams[0])
+		return fmt.Sprintf("[%s] The target(%s) has been hit by competitor(%d)", eventTime, e.ExtraParams[0], e.CompetitorID)
 	case EventLeftRange:
 		return fmt.Sprintf("[%s] The competitor(%d) left the firing range", eventTime, e.CompetitorID)
 	case EventEnteredPenalty:
@@ -62,6 +60,10 @@ func (e Event) String() string {
 		return fmt.Sprintf("[%s] The competitor(%d) ended the main lap", eventTime, e.CompetitorID)
 	case EventCantContinue:
 		return fmt.Sprintf("[%s] The competitor(%d) can`t continue: %s", eventTime, e.CompetitorID, strings.Join(e.ExtraParams, " "))
+	case EventDisqualified:
+		return fmt.Sprintf("[%s] The competitor(%d) is disqualified", eventTime, e.CompetitorID)
+	case EventFinished:
+		return fmt.Sprintf("[%s] The competitor(%d) finished the race", eventTime, e.CompetitorID)
 	default:
 		return fmt.Sprintf("Unknown eventID: %d", e.ID)
 	}
@@ -83,8 +85,7 @@ func parseEvents(path string, ch chan<- Event) {
 			fmt.Printf("error parsing event: %s", err)
 			continue
 		}
-		fmt.Println(event)
-		// ch <- event
+		ch <- event
 	}
 
 }

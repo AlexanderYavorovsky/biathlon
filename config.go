@@ -10,7 +10,7 @@ import (
 
 const (
 	timeLayout     = "15:04:05.000"
-	durationLayout = "15:04:05"
+	durationLayout = time.TimeOnly
 )
 
 type Config struct {
@@ -36,14 +36,17 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	parsed, err := time.Parse(timeLayout, timeStr)
-	if err != nil {
-		return fmt.Errorf("invalid time format: %w", err)
+	layouts := []string{timeLayout, durationLayout}
+	var err error
+	for _, l := range layouts {
+		parsed, err := time.Parse(l, timeStr)
+		if err == nil {
+			t.Time = parsed
+			return nil
+		}
 	}
 
-	t.Time = parsed
-
-	return nil
+	return fmt.Errorf("invalid time format: %w", err)
 }
 
 func (d *Duration) UnmarshalJSON(data []byte) error {
