@@ -74,7 +74,8 @@ func processStartSet(e Event, comp *Competitor) {
 func processStarted(cfg Config, e Event, comp *Competitor) {
 	comp.StartTime = e.Time
 	comp.LastLapStartTime = e.Time
-	if comp.StartTime.After(comp.PlannedStart.Add(cfg.StartDelta.Duration)) {
+	deadline := comp.PlannedStart.Add(cfg.StartDelta.Duration)
+	if comp.StartTime.Before(comp.PlannedStart) || comp.StartTime.After(deadline) {
 		comp.Status = StatusNotStarted
 		event := Event{
 			ID:           EventDisqualified,
