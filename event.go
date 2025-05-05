@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -69,16 +69,10 @@ func (e Event) String() string {
 	}
 }
 
-func parseEvents(path string, ch chan<- Event) {
-	file, err := os.Open(path)
-	if err != nil {
-		fmt.Printf("error opening file: %s", err)
-		return
-	}
-	defer file.Close()
+func parseEvents(from io.Reader, ch chan<- Event) {
 	defer close(ch)
 
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(from)
 	for scanner.Scan() {
 		event, err := parseEvent(scanner.Text())
 		if err != nil {

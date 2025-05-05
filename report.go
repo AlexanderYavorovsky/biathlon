@@ -109,6 +109,7 @@ func getSortedByTime(competitors map[int]*Competitor) []Competitor {
 
 func printFinalReport(competitors []Competitor, cfg Config) {
 	//TODO: handle cases NotFinished, NotStarted -- when to print?
+	fmt.Println("\nFinal Report:")
 	for _, c := range competitors {
 		r := getResult(cfg, c)
 		fmt.Println(r)

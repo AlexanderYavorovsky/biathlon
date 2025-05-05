@@ -1,20 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"io"
+	"os"
 	"sync"
 )
 
 const bufferSize = 10
 
-func getSortedCompetitors(cfg Config, eventsPath string) []Competitor {
+func getSortedCompetitors(cfg Config, from io.Reader) []Competitor {
 	events := make(chan Event, bufferSize)
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		parseEvents(eventsPath, events)
+		parseEvents(from, events)
 	}()
 
 	competitors := make(map[int]*Competitor)
@@ -32,16 +33,18 @@ func getSortedCompetitors(cfg Config, eventsPath string) []Competitor {
 }
 
 func main() {
-	configPath := "sunny_5_skiers/config.json"
-	eventsPath := "sunny_5_skiers/events"
+	configPath := os.Getenv("CONFIG_PATH")
+	if configPath == "" {
+		panic("CONFIG_PATH not set")
+	}
 
 	cfg, err := parseConfig(configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	competitors := getSortedCompetitors(cfg, eventsPath)
+	eventsInput := io.Reader(os.Stdin)
+	competitors := getSortedCompetitors(cfg, eventsInput)
 
-	fmt.Println("\nFinal Report:")
 	printFinalReport(competitors, cfg)
 }
