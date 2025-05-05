@@ -48,7 +48,7 @@ func processEvent(e Event, competitors map[int]*Competitor, cfg Config) {
 	case EventStartSet:
 		processStartSet(e, competitor)
 	case EventStarted:
-		processStarted(cfg, e, competitor)
+		processStarted(e, competitor, cfg)
 	case EventHit:
 		competitor.Hits++
 	case EventEnteredPenalty:
@@ -57,7 +57,7 @@ func processEvent(e Event, competitors map[int]*Competitor, cfg Config) {
 		duration := e.Time.Sub(competitor.LastPenaltyStartTime)
 		competitor.Penalty += duration
 	case EventEndedMainLap:
-		processEndedMainLap(cfg, e, competitor)
+		processEndedMainLap(e, competitor, cfg)
 	case EventCantContinue:
 		competitor.Status = StatusNotFinished
 	}
@@ -71,7 +71,7 @@ func processStartSet(e Event, comp *Competitor) {
 	comp.PlannedStart = t
 }
 
-func processStarted(cfg Config, e Event, comp *Competitor) {
+func processStarted(e Event, comp *Competitor, cfg Config) {
 	comp.StartTime = e.Time
 	comp.LastLapStartTime = e.Time
 	deadline := comp.PlannedStart.Add(cfg.StartDelta.Duration)
@@ -86,7 +86,7 @@ func processStarted(cfg Config, e Event, comp *Competitor) {
 	}
 }
 
-func processEndedMainLap(cfg Config, e Event, comp *Competitor) {
+func processEndedMainLap(e Event, comp *Competitor, cfg Config) {
 	duration := e.Time.Sub(comp.LastLapStartTime)
 	if len(comp.Laps) == 0 { // add start difference to first lap time
 		duration += comp.StartTime.Sub(comp.PlannedStart)

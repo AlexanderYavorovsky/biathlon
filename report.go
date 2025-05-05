@@ -14,7 +14,7 @@ type ResultInfo struct {
 	MissedShots int
 }
 
-func getResult(cfg Config, comp Competitor) ResultInfo {
+func getResult(comp Competitor, cfg Config) ResultInfo {
 	totalShots := cfg.FiringLines * TargetsPerFiringLine
 	return ResultInfo{
 		Cfg:         cfg,
@@ -111,7 +111,6 @@ func printFinalReport(competitors []Competitor, cfg Config) {
 	//TODO: handle cases NotFinished, NotStarted -- when to print?
 	fmt.Println("\nFinal Report:")
 	for _, c := range competitors {
-		r := getResult(cfg, c)
-		fmt.Println(r)
+		fmt.Println(getResult(c, cfg))
 	}
 }
