@@ -3,29 +3,17 @@ package main
 import (
 	"io"
 	"os"
-	"sync"
 )
 
 const bufferSize = 10
 
 func getSortedCompetitors(cfg Config, from io.Reader) []Competitor {
 	events := make(chan Event, bufferSize)
-	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		parseEvents(from, events)
-	}()
+	go parseEvents(from, events)
 
 	competitors := make(map[int]*Competitor)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		processEvents(events, competitors, cfg)
-	}()
-
-	wg.Wait()
+	processEvents(events, competitors, cfg)
 
 	calculateCompetitors(competitors)
 
