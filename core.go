@@ -44,26 +44,11 @@ func processEvent(e Event, competitors map[int]*Competitor, cfg Config) {
 		competitors[e.CompetitorID] = competitor
 	}
 
-	//TODO: make functions for cases
 	switch e.ID {
 	case EventStartSet:
-		t, err := time.Parse(timeLayout, e.ExtraParams[0])
-		if err != nil {
-			break
-		}
-		competitor.PlannedStart = t
+		processStartSet(e, competitor)
 	case EventStarted:
-		competitor.StartTime = e.Time
-		competitor.LastLapStartTime = e.Time
-		if competitor.StartTime.After(competitor.PlannedStart.Add(cfg.StartDelta.Duration)) {
-			competitor.Status = StatusNotStarted
-			event := Event{
-				ID:           EventDisqualified,
-				CompetitorID: e.CompetitorID,
-				Time:         e.Time,
-			}
-			fmt.Println(event)
-		}
+		processStarted(cfg, e, competitor)
 	case EventHit:
 		competitor.Hits++
 	case EventEnteredPenalty:
@@ -72,24 +57,52 @@ func processEvent(e Event, competitors map[int]*Competitor, cfg Config) {
 		duration := e.Time.Sub(competitor.LastPenaltyStartTime)
 		competitor.Penalty += duration
 	case EventEndedMainLap:
-		duration := e.Time.Sub(competitor.LastLapStartTime)
-		if len(competitor.Laps) == 0 {
-			duration += competitor.StartTime.Sub(competitor.PlannedStart)
-		}
-		speed := float64(cfg.LapLen) / duration.Seconds()
-		lap := Lap{Duration: duration, Speed: speed}
-		competitor.Laps = append(competitor.Laps, lap)
-		competitor.LastLapStartTime = e.Time
-		if len(competitor.Laps) == cfg.Laps {
-			competitor.Status = StatusFinished // TODO: delete?
-			event := Event{
-				ID:           EventFinished,
-				CompetitorID: e.CompetitorID,
-				Time:         e.Time,
-			}
-			fmt.Println(event)
-		}
+		processEndedMainLap(cfg, e, competitor)
 	case EventCantContinue:
 		competitor.Status = StatusNotFinished
+	}
+}
+
+func processStartSet(e Event, comp *Competitor) {
+	t, err := time.Parse(timeLayout, e.ExtraParams[0])
+	if err != nil {
+		return
+	}
+	comp.PlannedStart = t
+}
+
+func processStarted(cfg Config, e Event, comp *Competitor) {
+	comp.StartTime = e.Time
+	comp.LastLapStartTime = e.Time
+	if comp.StartTime.After(comp.PlannedStart.Add(cfg.StartDelta.Duration)) {
+		comp.Status = StatusNotStarted
+		event := Event{
+			ID:           EventDisqualified,
+			CompetitorID: e.CompetitorID,
+			Time:         e.Time,
+		}
+		fmt.Println(event)
+	}
+}
+
+func processEndedMainLap(cfg Config, e Event, comp *Competitor) {
+	duration := e.Time.Sub(comp.LastLapStartTime)
+	if len(comp.Laps) == 0 { // add start difference to first lap time
+		duration += comp.StartTime.Sub(comp.PlannedStart)
+	}
+
+	speed := float64(cfg.LapLen) / duration.Seconds()
+	lap := Lap{Duration: duration, Speed: speed}
+	comp.Laps = append(comp.Laps, lap)
+	comp.LastLapStartTime = e.Time
+
+	if len(comp.Laps) == cfg.Laps { // final lap finished
+		comp.Status = StatusFinished
+		event := Event{
+			ID:           EventFinished,
+			CompetitorID: e.CompetitorID,
+			Time:         e.Time,
+		}
+		fmt.Println(event)
 	}
 }

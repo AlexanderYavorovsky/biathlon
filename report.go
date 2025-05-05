@@ -74,7 +74,7 @@ func fmtDuration(d time.Duration) string {
 	return fmt.Sprintf("%02d:%02d:%02d.%03d", h, m, s, ms)
 }
 
-func calculateCompetitor(c *Competitor) {
+func calculateCompetitorTime(c *Competitor) {
 	if c.Status == StatusNotStarted || c.Status == StatusNotFinished {
 		return
 	}
@@ -89,7 +89,7 @@ func calculateCompetitor(c *Competitor) {
 func calculateCompetitors(competitors map[int]*Competitor) {
 	for _, c := range competitors {
 		// TODO: use goroutines?
-		calculateCompetitor(c)
+		calculateCompetitorTime(c)
 	}
 }
 

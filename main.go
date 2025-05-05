@@ -7,15 +7,7 @@ import (
 
 const bufferSize = 10
 
-func main() {
-	configPath := "sunny_5_skiers/config.json"
-	eventsPath := "sunny_5_skiers/events"
-
-	cfg, err := parseConfig(configPath)
-	if err != nil {
-		panic(err)
-	}
-
+func getSortedCompetitors(cfg Config, eventsPath string) []Competitor {
 	events := make(chan Event, bufferSize)
 	var wg sync.WaitGroup
 
@@ -35,8 +27,21 @@ func main() {
 	wg.Wait()
 
 	calculateCompetitors(competitors)
-	sortedCompetitors := getSortedByTime(competitors)
+
+	return getSortedByTime(competitors)
+}
+
+func main() {
+	configPath := "sunny_5_skiers/config.json"
+	eventsPath := "sunny_5_skiers/events"
+
+	cfg, err := parseConfig(configPath)
+	if err != nil {
+		panic(err)
+	}
+
+	competitors := getSortedCompetitors(cfg, eventsPath)
 
 	fmt.Println("\nFinal Report:")
-	printFinalReport(sortedCompetitors, cfg)
+	printFinalReport(competitors, cfg)
 }
