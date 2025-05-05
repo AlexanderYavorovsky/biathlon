@@ -106,12 +106,10 @@ func parseEvent(line string) (Event, error) {
 		return Event{}, fmt.Errorf("cannot convert competitorID: %w", err)
 	}
 
-	extraParams := split[3:]
-
 	return Event{
 		ID:           eventID,
 		CompetitorID: competitorID,
 		Time:         eventTime,
-		ExtraParams:  extraParams,
+		ExtraParams:  split[3:],
 	}, nil
 }
