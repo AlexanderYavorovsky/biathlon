@@ -69,8 +69,8 @@ func (e Event) String() string {
 	}
 }
 
-func parseEvents(from io.Reader, ch chan<- Event) {
-	defer close(ch)
+func parseEvents(from io.Reader, sendTo chan<- Event) {
+	defer close(sendTo)
 
 	scanner := bufio.NewScanner(from)
 	for scanner.Scan() {
@@ -79,7 +79,7 @@ func parseEvents(from io.Reader, ch chan<- Event) {
 			fmt.Printf("error parsing event: %s", err)
 			continue
 		}
-		ch <- event
+		sendTo <- event
 	}
 
 }
