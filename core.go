@@ -21,7 +21,6 @@ type Competitor struct {
 	ID                   int
 	Status               string
 	PlannedStart         time.Time
-	StartTime            time.Time
 	TotalTime            time.Duration
 	LastLapStartTime     time.Time
 	LastPenaltyStartTime time.Time
@@ -72,10 +71,9 @@ func processStartSet(e Event, comp *Competitor) {
 }
 
 func processStarted(e Event, comp *Competitor, cfg Config) {
-	comp.StartTime = e.Time
 	comp.LastLapStartTime = e.Time
 	deadline := comp.PlannedStart.Add(cfg.StartDelta.Duration)
-	if comp.StartTime.Before(comp.PlannedStart) || comp.StartTime.After(deadline) {
+	if e.Time.Before(comp.PlannedStart) || e.Time.After(deadline) {
 		comp.Status = StatusNotStarted
 		event := Event{
 			ID:           EventDisqualified,
@@ -89,12 +87,14 @@ func processStarted(e Event, comp *Competitor, cfg Config) {
 func processEndedMainLap(e Event, comp *Competitor, cfg Config) {
 	duration := e.Time.Sub(comp.LastLapStartTime)
 	if len(comp.Laps) == 0 { // add start difference to first lap time
-		duration += comp.StartTime.Sub(comp.PlannedStart)
+		duration += comp.LastLapStartTime.Sub(comp.PlannedStart)
 	}
 
 	speed := float64(cfg.LapLen) / duration.Seconds()
-	lap := Lap{Duration: duration, Speed: speed}
-	comp.Laps = append(comp.Laps, lap)
+	comp.Laps = append(comp.Laps, Lap{
+		Duration: duration,
+		Speed:    speed,
+	})
 	comp.LastLapStartTime = e.Time
 
 	if len(comp.Laps) == cfg.Laps { // final lap finished
