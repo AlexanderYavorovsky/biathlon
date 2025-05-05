@@ -17,7 +17,7 @@ func getSortedCompetitors(cfg Config, from io.Reader) []Competitor {
 
 	calculateCompetitors(competitors)
 
-	return getSortedByTime(competitors)
+	return getSortedByTime(getList(competitors))
 }
 
 func main() {

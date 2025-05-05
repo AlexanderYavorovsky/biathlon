@@ -10,15 +10,25 @@ import (
 type ResultInfo struct {
 	Cfg         Config
 	Comp        Competitor
+	Status      string
 	TotalShots  int
 	MissedShots int
 }
 
 func getResult(comp Competitor, cfg Config) ResultInfo {
 	totalShots := cfg.FiringLines * TargetsPerFiringLine
+
+	var status string
+	if comp.Status == StatusFinished {
+		status = fmtDuration(comp.TotalTime)
+	} else {
+		status = comp.Status
+	}
+
 	return ResultInfo{
 		Cfg:         cfg,
 		Comp:        comp,
+		Status:      status,
 		TotalShots:  totalShots,
 		MissedShots: totalShots - comp.Hits,
 	}
@@ -26,7 +36,7 @@ func getResult(comp Competitor, cfg Config) ResultInfo {
 
 func (r ResultInfo) String() string {
 	return fmt.Sprintf("[%s] %d [%s] {%s} %d/%d",
-		r.Comp.Status,
+		r.Status,
 		r.Comp.ID,
 		getLapsStr(r),
 		getPenaltyStr(r),
@@ -82,8 +92,6 @@ func calculateCompetitorTime(c *Competitor) {
 	for _, l := range c.Laps {
 		c.TotalTime += l.Duration
 	}
-
-	c.Status = fmtDuration(c.TotalTime)
 }
 
 func calculateCompetitors(competitors map[int]*Competitor) {
@@ -93,22 +101,40 @@ func calculateCompetitors(competitors map[int]*Competitor) {
 	}
 }
 
-func getSortedByTime(competitors map[int]*Competitor) []Competitor {
-	s := make([]Competitor, 0)
-	//TODO: use counter instead to prevent reallocation?
+func getList(competitors map[int]*Competitor) []Competitor {
+	s := make([]Competitor, 0, len(competitors))
 	for _, c := range competitors {
 		s = append(s, *c)
 	}
-
-	sort.Slice(s, func(i, j int) bool {
-		return s[i].TotalTime < s[j].TotalTime
-	})
-
 	return s
 }
 
+// Sort in following order:
+// 1. List of finished, by ascending TotalTime;
+// 2. List of NotFinished and NotStarted, by ascending ID.
+func getSortedByTime(c []Competitor) []Competitor {
+	sort.Slice(c, func(i, j int) bool {
+		ci := c[i]
+		cj := c[j]
+
+		if ci.Status == StatusFinished {
+			if cj.Status != ci.Status {
+				return true
+			}
+			return ci.TotalTime < cj.TotalTime
+		}
+
+		if cj.Status == StatusFinished {
+			return false
+		}
+
+		return ci.ID < cj.ID
+	})
+
+	return c
+}
+
 func printFinalReport(competitors []Competitor, cfg Config) {
-	//TODO: handle cases NotFinished, NotStarted -- when to print?
 	fmt.Println("\nFinal Report:")
 	for _, c := range competitors {
 		fmt.Println(getResult(c, cfg))
