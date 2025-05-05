@@ -18,15 +18,15 @@ type Lap struct {
 }
 
 type Competitor struct {
-	ID                   int
-	Status               string
-	PlannedStart         time.Time
-	TotalTime            time.Duration
-	LastLapStartTime     time.Time
-	LastPenaltyStartTime time.Time
-	Laps                 []Lap
-	Penalty              time.Duration
-	Hits                 int
+	ID                      int
+	Status                  string
+	PlannedStart            time.Time
+	TotalTime               time.Duration
+	CurrentLapStartTime     time.Time
+	CurrentPenaltyStartTime time.Time
+	Laps                    []Lap
+	Penalty                 time.Duration
+	Hits                    int
 }
 
 func processEvents(events <-chan Event, competitors map[int]*Competitor, cfg Config) {
@@ -43,6 +43,10 @@ func processEvent(e Event, competitors map[int]*Competitor, cfg Config) {
 		competitors[e.CompetitorID] = competitor
 	}
 
+	if competitor.Status == StatusNotFinished || competitor.Status == StatusNotStarted {
+		return
+	}
+
 	switch e.ID {
 	case EventStartSet:
 		processStartSet(e, competitor)
@@ -51,9 +55,9 @@ func processEvent(e Event, competitors map[int]*Competitor, cfg Config) {
 	case EventHit:
 		competitor.Hits++
 	case EventEnteredPenalty:
-		competitor.LastPenaltyStartTime = e.Time
+		competitor.CurrentPenaltyStartTime = e.Time
 	case EventLeftPenalty:
-		duration := e.Time.Sub(competitor.LastPenaltyStartTime)
+		duration := e.Time.Sub(competitor.CurrentPenaltyStartTime)
 		competitor.Penalty += duration
 	case EventEndedMainLap:
 		processEndedMainLap(e, competitor, cfg)
@@ -71,7 +75,7 @@ func processStartSet(e Event, comp *Competitor) {
 }
 
 func processStarted(e Event, comp *Competitor, cfg Config) {
-	comp.LastLapStartTime = e.Time
+	comp.CurrentLapStartTime = e.Time
 	deadline := comp.PlannedStart.Add(cfg.StartDelta.Duration)
 	if e.Time.Before(comp.PlannedStart) || e.Time.After(deadline) {
 		comp.Status = StatusNotStarted
@@ -85,9 +89,9 @@ func processStarted(e Event, comp *Competitor, cfg Config) {
 }
 
 func processEndedMainLap(e Event, comp *Competitor, cfg Config) {
-	duration := e.Time.Sub(comp.LastLapStartTime)
+	duration := e.Time.Sub(comp.CurrentLapStartTime)
 	if len(comp.Laps) == 0 { // add start difference to first lap time
-		duration += comp.LastLapStartTime.Sub(comp.PlannedStart)
+		duration += comp.CurrentLapStartTime.Sub(comp.PlannedStart)
 	}
 
 	speed := float64(cfg.LapLen) / duration.Seconds()
@@ -95,7 +99,7 @@ func processEndedMainLap(e Event, comp *Competitor, cfg Config) {
 		Duration: duration,
 		Speed:    speed,
 	})
-	comp.LastLapStartTime = e.Time
+	comp.CurrentLapStartTime = e.Time
 
 	if len(comp.Laps) == cfg.Laps { // final lap finished
 		comp.Status = StatusFinished
