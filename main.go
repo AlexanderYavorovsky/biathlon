@@ -9,7 +9,6 @@ const bufferSize = 10
 
 func getSortedCompetitors(cfg Config, from io.Reader) []Competitor {
 	eventsCh := make(chan Event, bufferSize)
-
 	go parseEvents(from, eventsCh)
 
 	competitors := make(map[int]*Competitor)

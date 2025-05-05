@@ -43,10 +43,7 @@ func TestParseEvent(t *testing.T) {
 				assert.EqualError(err, tt.wantErrStr)
 			} else {
 				assert.Nil(err)
-				assert.Equal(tt.want.ID, got.ID)
-				assert.Equal(tt.want.CompetitorID, got.CompetitorID)
-				assert.Equal(tt.want.Time, got.Time)
-				assert.Equal(tt.want.ExtraParams, got.ExtraParams)
+				assert.Equal(tt.want, got)
 			}
 		})
 	}

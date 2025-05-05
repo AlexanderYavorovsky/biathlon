@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	StatusNotStarted     = "NotStarted"
-	StatusNotFinished    = "NotFinished"
-	StatusFinished       = "Finished"
+	StatusNotStarted  = "NotStarted"
+	StatusNotFinished = "NotFinished"
+	StatusFinished    = "Finished"
+
 	TargetsPerFiringLine = 5
 )
 
