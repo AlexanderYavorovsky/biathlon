@@ -31,8 +31,7 @@ func main() {
 		log.Fatalf("Failed to parse config: %v", err)
 	}
 
-	eventsInput := os.Stdin
-	competitors := getSortedCompetitors(cfg, eventsInput)
+	competitors := getSortedCompetitors(cfg, os.Stdin)
 
 	printFinalReport(competitors, cfg)
 }
