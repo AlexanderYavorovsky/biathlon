@@ -85,7 +85,9 @@ func TestProcessEvent(t *testing.T) {
 					PlannedStart:        time.Date(0, 1, 1, 10, 0, 0, 0, time.UTC),
 					TotalTime:           30 * time.Minute,
 					CurrentLapStartTime: time.Date(0, 1, 1, 10, 30, 0, 0, time.UTC),
-					Laps:                []Lap{{Duration: 30 * time.Minute, Speed: float64(3500) / float64(30*60)}},
+					Laps: []Lap{
+						{Duration: 30 * time.Minute, Speed: float64(3500) / float64(30*60)},
+					},
 				},
 			},
 		},

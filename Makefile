@@ -26,3 +26,9 @@ cover:
 clean:
 	@go clean
 	@rm -f $(COVER_OUT) $(COVER_HTML)
+
+lint:
+	@golangci-lint run
+
+fmt:
+	@golangci-lint fmt

@@ -42,8 +42,16 @@ func TestParseConfig(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := assert.New(t)
 			tmpFile, _ := os.CreateTemp("", tt.name)
-			defer os.Remove(tmpFile.Name())
-			tmpFile.Write([]byte(tt.input))
+			defer func() {
+				err := os.Remove(tmpFile.Name())
+				if err != nil {
+					panic(err)
+				}
+			}()
+			_, err := tmpFile.Write([]byte(tt.input))
+			if err != nil {
+				panic(err)
+			}
 
 			got, err := parseConfig(tmpFile.Name())
 			if tt.wantErr {

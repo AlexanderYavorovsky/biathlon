@@ -1,9 +1,13 @@
-# biathlon
+# Biathlon
 ## Task
 Task is described in `sunny_5_skiers/README.md`.
 
+## Prerequisites
+- Go (1.20+)
+- Optional: `make` `golangci-lint(v2)`
+
 ## How to run
-### 1. Using make
+### 1. Run using make
 Default: (runs program with config1.json and events1)
 ```
 make run
@@ -18,10 +22,12 @@ Other make commands:
 - `make test`
 - `make cover` (show test coverage)
 - `make clean`
+- `make lint` (run linters)
+- `make fmt` (run formatters)
 
 
 
-### 2. 'With your hands'
+### 2. Run 'with your hands'
 ```
 CONFIG_PATH=<path_to_config.json> go run . < <path_to_events_file>
 ```

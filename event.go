@@ -41,25 +41,61 @@ func (e Event) String() string {
 	case EventRegistered:
 		return fmt.Sprintf("[%s] The competitor(%d) registered", eventTime, e.CompetitorID)
 	case EventStartSet:
-		return fmt.Sprintf("[%s] The start time for the competitor(%d) was set by a draw to %s", eventTime, e.CompetitorID, e.ExtraParams[0])
+		return fmt.Sprintf(
+			"[%s] The start time for the competitor(%d) was set by a draw to %s",
+			eventTime,
+			e.CompetitorID,
+			e.ExtraParams[0],
+		)
 	case EventOnStart:
-		return fmt.Sprintf("[%s] The competitor(%d) is on the start line", eventTime, e.CompetitorID)
+		return fmt.Sprintf(
+			"[%s] The competitor(%d) is on the start line",
+			eventTime,
+			e.CompetitorID,
+		)
 	case EventStarted:
 		return fmt.Sprintf("[%s] The competitor(%d) has started", eventTime, e.CompetitorID)
 	case EventOnRange:
-		return fmt.Sprintf("[%s] The competitor(%d) is on the firing range(%s)", eventTime, e.CompetitorID, e.ExtraParams[0])
+		return fmt.Sprintf(
+			"[%s] The competitor(%d) is on the firing range(%s)",
+			eventTime,
+			e.CompetitorID,
+			e.ExtraParams[0],
+		)
 	case EventHit:
-		return fmt.Sprintf("[%s] The target(%s) has been hit by competitor(%d)", eventTime, e.ExtraParams[0], e.CompetitorID)
+		return fmt.Sprintf(
+			"[%s] The target(%s) has been hit by competitor(%d)",
+			eventTime,
+			e.ExtraParams[0],
+			e.CompetitorID,
+		)
 	case EventLeftRange:
-		return fmt.Sprintf("[%s] The competitor(%d) left the firing range", eventTime, e.CompetitorID)
+		return fmt.Sprintf(
+			"[%s] The competitor(%d) left the firing range",
+			eventTime,
+			e.CompetitorID,
+		)
 	case EventEnteredPenalty:
-		return fmt.Sprintf("[%s] The competitor(%d) entered the penalty laps", eventTime, e.CompetitorID)
+		return fmt.Sprintf(
+			"[%s] The competitor(%d) entered the penalty laps",
+			eventTime,
+			e.CompetitorID,
+		)
 	case EventLeftPenalty:
-		return fmt.Sprintf("[%s] The competitor(%d) left the penalty laps", eventTime, e.CompetitorID)
+		return fmt.Sprintf(
+			"[%s] The competitor(%d) left the penalty laps",
+			eventTime,
+			e.CompetitorID,
+		)
 	case EventEndedMainLap:
 		return fmt.Sprintf("[%s] The competitor(%d) ended the main lap", eventTime, e.CompetitorID)
 	case EventCantContinue:
-		return fmt.Sprintf("[%s] The competitor(%d) can`t continue: %s", eventTime, e.CompetitorID, strings.Join(e.ExtraParams, " "))
+		return fmt.Sprintf(
+			"[%s] The competitor(%d) can`t continue: %s",
+			eventTime,
+			e.CompetitorID,
+			strings.Join(e.ExtraParams, " "),
+		)
 	case EventDisqualified:
 		return fmt.Sprintf("[%s] The competitor(%d) is disqualified", eventTime, e.CompetitorID)
 	case EventFinished:
