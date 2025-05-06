@@ -5,7 +5,7 @@ COVER = cover
 COVER_OUT = $(COVER).out
 COVER_HTML = $(COVER).html
 
-.PHONY: all build run test cover clean
+.PHONY: all build run test cover clean lint fmt
 
 all: build
 
