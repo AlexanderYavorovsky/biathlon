@@ -1,5 +1,5 @@
-CONFIG_PATH ?= sunny_5_skiers/config1.json
-EVENTS ?= sunny_5_skiers/events1
+CONFIG_PATH ?= testdata/config1.json
+EVENTS ?= testdata/events1
 BINARY = biathlon
 COVER = cover
 COVER_OUT = $(COVER).out

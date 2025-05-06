@@ -1,6 +1,6 @@
 # Biathlon
 ## Task
-Task is described in `sunny_5_skiers/README.md`.
+Task is described in `testdata/README.md`.
 
 ## Prerequisites
 - Go (1.20+)
@@ -34,7 +34,7 @@ CONFIG_PATH=<path_to_config.json> go run . < <path_to_events_file>
 
 Example:
 ```
-CONFIG_PATH=sunny_5_skiers/config1.json go run . < sunny_5_skiers/events1
+CONFIG_PATH=testdata/config1.json go run . < testdata/events1
 ```
 
 Example output:
