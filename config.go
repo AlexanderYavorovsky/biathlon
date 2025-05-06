@@ -11,6 +11,11 @@ import (
 const (
 	timeLayout     = "15:04:05.000"
 	durationLayout = time.TimeOnly
+
+	errInvalidTime           = "invalid time format for Time: %w"
+	errInvalidDuration       = "invalid time format for Duration: %w"
+	errCannotReadFile        = "cannot read file: %w"
+	errCannotUnmarshalConfig = "cannot unmarshal config: %w"
 )
 
 type Config struct {
@@ -46,7 +51,7 @@ func (t *Time) UnmarshalJSON(data []byte) error {
 		}
 	}
 
-	return fmt.Errorf("invalid time format: %w", err)
+	return fmt.Errorf(errInvalidTime, err)
 }
 
 func (d *Duration) UnmarshalJSON(data []byte) error {
@@ -57,7 +62,7 @@ func (d *Duration) UnmarshalJSON(data []byte) error {
 
 	parsed, err := time.Parse(durationLayout, timeStr)
 	if err != nil {
-		return fmt.Errorf("invalid time format: %w", err)
+		return fmt.Errorf(errInvalidDuration, err)
 	}
 
 	d.Duration = time.Duration(parsed.Second())*time.Second +
@@ -70,13 +75,13 @@ func (d *Duration) UnmarshalJSON(data []byte) error {
 func parseConfig(path string) (Config, error) {
 	f, err := os.ReadFile(path)
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf(errCannotReadFile, err)
 	}
 
 	cfg := Config{}
 	err = json.Unmarshal(f, &cfg)
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf(errCannotUnmarshalConfig, err)
 	}
 
 	return cfg, nil

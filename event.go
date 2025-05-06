@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -26,6 +27,12 @@ const (
 const (
 	EventDisqualified = 32 + iota
 	EventFinished
+)
+
+const (
+	errInvalidLineFormat = "invalid line format: %s"
+	errCannotParseTime   = "cannot parse time: %w"
+	errCannotConvert     = "cannot convert %s: %w"
 )
 
 type Event struct {
@@ -105,41 +112,47 @@ func (e Event) String() string {
 	}
 }
 
-func parseEvents(from io.Reader, sendTo chan<- Event) {
-	defer close(sendTo)
-
-	scanner := bufio.NewScanner(from)
-	for scanner.Scan() {
-		event, err := parseEvent(scanner.Text())
-		if err != nil {
-			fmt.Printf("error parsing event: %s", err)
-			continue
+func parseEvents(eventStream io.Reader) <-chan Event {
+	eventCh := make(chan Event, bufferSize)
+	go func() {
+		defer close(eventCh)
+		scanner := bufio.NewScanner(eventStream)
+		for scanner.Scan() {
+			event, err := parseEvent(scanner.Text())
+			if err != nil {
+				log.Printf("error parsing event: %s", err)
+				continue
+			}
+			eventCh <- event
 		}
-		sendTo <- event
-	}
+		if err := scanner.Err(); err != nil {
+			log.Printf("error reading event stream: %s\n", err)
+		}
+	}()
 
+	return eventCh
 }
 
 func parseEvent(line string) (Event, error) {
 	split := strings.Split(line, " ")
 	if len(split) < 3 {
-		return Event{}, fmt.Errorf("invalid line format: %s", line)
+		return Event{}, fmt.Errorf(errInvalidLineFormat, line)
 	}
 	timeStr := split[0][1 : len(split[0])-1]
 
 	eventTime, err := time.Parse(timeLayout, timeStr)
 	if err != nil {
-		return Event{}, fmt.Errorf("cannot parse time: %w", err)
+		return Event{}, fmt.Errorf(errCannotParseTime, err)
 	}
 
 	eventID, err := strconv.Atoi(split[1])
 	if err != nil {
-		return Event{}, fmt.Errorf("cannot convert eventID: %w", err)
+		return Event{}, fmt.Errorf(errCannotConvert, "eventID", err)
 	}
 
 	competitorID, err := strconv.Atoi(split[2])
 	if err != nil {
-		return Event{}, fmt.Errorf("cannot convert competitorID: %w", err)
+		return Event{}, fmt.Errorf(errCannotConvert, "competitorID", err)
 	}
 
 	return Event{

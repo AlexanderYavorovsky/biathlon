@@ -1,11 +1,11 @@
-CONFIG_PATH ?= sunny_5_skiers/config1.json
-EVENTS ?= sunny_5_skiers/events1
+CONFIG_PATH ?= testdata/config1.json
+EVENTS ?= testdata/events1
 BINARY = biathlon
 COVER = cover
 COVER_OUT = $(COVER).out
 COVER_HTML = $(COVER).html
 
-.PHONY: all build run test cover clean
+.PHONY: all build run test cover clean lint fmt
 
 all: build
 

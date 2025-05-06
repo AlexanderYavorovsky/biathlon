@@ -2,33 +2,36 @@ package main
 
 import (
 	"io"
+	"log"
 	"os"
 )
 
-const bufferSize = 10
+const (
+	bufferSize = 10
+	configEnv  = "CONFIG_PATH"
+)
 
-func getSortedCompetitors(cfg Config, from io.Reader) []Competitor {
-	eventsCh := make(chan Event, bufferSize)
-	go parseEvents(from, eventsCh)
+func getSortedCompetitors(cfg Config, eventStream io.Reader) []Competitor {
+	eventCh := parseEvents(eventStream)
 
 	competitors := make(map[int]*Competitor)
-	processEvents(eventsCh, competitors, cfg)
+	processEvents(eventCh, competitors, cfg)
 
 	return getSortedByTime(getList(competitors))
 }
 
 func main() {
-	configPath := os.Getenv("CONFIG_PATH")
+	configPath := os.Getenv(configEnv)
 	if configPath == "" {
-		panic("CONFIG_PATH not set")
+		log.Fatalf("%s is not set", configEnv)
 	}
 
 	cfg, err := parseConfig(configPath)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to parse config: %v", err)
 	}
 
-	eventsInput := io.Reader(os.Stdin)
+	eventsInput := os.Stdin
 	competitors := getSortedCompetitors(cfg, eventsInput)
 
 	printFinalReport(competitors, cfg)
