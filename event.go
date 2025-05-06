@@ -39,7 +39,7 @@ func (e Event) String() string {
 	eventTime := e.Time.Format(timeLayout)
 	switch e.ID {
 	case EventRegistered:
-		return fmt.Sprintf("[%s] The competitor (%d) registered", eventTime, e.CompetitorID)
+		return fmt.Sprintf("[%s] The competitor(%d) registered", eventTime, e.CompetitorID)
 	case EventStartSet:
 		return fmt.Sprintf("[%s] The start time for the competitor(%d) was set by a draw to %s", eventTime, e.CompetitorID, e.ExtraParams[0])
 	case EventOnStart:
