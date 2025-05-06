@@ -63,16 +63,13 @@ func getLapsStr(r ResultInfo) string {
 }
 
 func getPenaltyStr(r ResultInfo) string {
-	var penaltySB strings.Builder
 	if r.Comp.Penalty.Seconds() == 0 {
-		penaltySB.WriteString(",")
-	} else {
-		totalPenaltyLen := float64(r.Cfg.PenaltyLen) * float64(r.MissedShots)
-		penaltySpeed := totalPenaltyLen / float64(r.Comp.Penalty.Seconds())
-		penaltySB.WriteString(fmt.Sprintf("%s, %.3f", fmtDuration(r.Comp.Penalty), penaltySpeed))
+		return ","
 	}
 
-	return penaltySB.String()
+	totalPenaltyLen := float64(r.Cfg.PenaltyLen) * float64(r.MissedShots)
+	penaltySpeed := totalPenaltyLen / float64(r.Comp.Penalty.Seconds())
+	return fmt.Sprintf("%s, %.3f", fmtDuration(r.Comp.Penalty), penaltySpeed)
 }
 
 func fmtDuration(d time.Duration) string {
@@ -118,8 +115,16 @@ func getSortedByTime(c []Competitor) []Competitor {
 }
 
 func printFinalReport(competitors []Competitor, cfg Config) {
+	report := generateFinalReport(competitors, cfg)
 	fmt.Println("\nFinal Report:")
+	fmt.Println(report)
+}
+
+func generateFinalReport(competitors []Competitor, cfg Config) string {
+	var sb strings.Builder
 	for _, c := range competitors {
-		fmt.Println(getResult(c, cfg))
+		sb.WriteString(getResult(c, cfg).String())
+		sb.WriteString("\n")
 	}
+	return sb.String()
 }

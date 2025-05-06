@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -68,8 +69,14 @@ func processEvent(e Event, competitors map[int]*Competitor, cfg Config) {
 }
 
 func processStartSet(e Event, comp *Competitor) {
+	if len(e.ExtraParams) == 0 {
+		log.Printf("Missing ExtraParams for event %d", e.ID)
+		return
+	}
+
 	t, err := time.Parse(timeLayout, e.ExtraParams[0])
 	if err != nil {
+		log.Printf("Cannot parse start time for competitor %d: %v", comp.ID, err)
 		return
 	}
 	comp.PlannedStart = t
@@ -80,11 +87,7 @@ func processStarted(e Event, comp *Competitor, cfg Config) {
 	deadline := comp.PlannedStart.Add(cfg.StartDelta.Duration)
 	if e.Time.Before(comp.PlannedStart) || e.Time.After(deadline) {
 		comp.Status = StatusNotStarted
-		event := Event{
-			ID:           EventDisqualified,
-			CompetitorID: e.CompetitorID,
-			Time:         e.Time,
-		}
+		event := createEvent(EventDisqualified, e.CompetitorID, e.Time)
 		fmt.Println(event)
 	}
 }
@@ -105,11 +108,15 @@ func processEndedMainLap(e Event, comp *Competitor, cfg Config) {
 
 	if len(comp.Laps) == cfg.Laps { // final lap finished
 		comp.Status = StatusFinished
-		event := Event{
-			ID:           EventFinished,
-			CompetitorID: e.CompetitorID,
-			Time:         e.Time,
-		}
+		event := createEvent(EventFinished, e.CompetitorID, e.Time)
 		fmt.Println(event)
+	}
+}
+
+func createEvent(eventID int, competitorID int, time time.Time) Event {
+	return Event{
+		ID:           eventID,
+		CompetitorID: competitorID,
+		Time:         time,
 	}
 }
