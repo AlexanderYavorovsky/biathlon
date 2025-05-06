@@ -1,4 +1,8 @@
 # Biathlon
+## About project structure
+> [!NOTE]
+> All source code files are located in the root of the project because the assignment does not imply any further expansion of the codebase. Creating directories like `cmd/` `internal/...` would be overengineering it this situation.
+
 ## Task
 Task is described in `testdata/README.md`.
 
