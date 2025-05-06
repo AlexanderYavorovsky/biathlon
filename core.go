@@ -101,6 +101,7 @@ func processEndedMainLap(e Event, comp *Competitor, cfg Config) {
 		Speed:    speed,
 	})
 	comp.CurrentLapStartTime = e.Time
+	comp.TotalTime += duration
 
 	if len(comp.Laps) == cfg.Laps { // final lap finished
 		comp.Status = StatusFinished

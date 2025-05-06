@@ -14,8 +14,6 @@ func getSortedCompetitors(cfg Config, from io.Reader) []Competitor {
 	competitors := make(map[int]*Competitor)
 	processEvents(eventsCh, competitors, cfg)
 
-	calculateCompetitors(competitors)
-
 	return getSortedByTime(getList(competitors))
 }
 
